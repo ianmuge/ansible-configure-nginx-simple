@@ -1,0 +1,22 @@
+---
+- name: Nginx Setup
+  hosts: all
+  user: ec2-user
+  gather_facts: true
+  become: true
+  pre_tasks:
+    - name: stop httpd
+      ignore_errors: true
+      service:
+        name: httpd
+        state: stopped
+        enabled: no
+  roles:
+    - name: EC2Nginx
+  post_tasks:
+    - name: check that the nginx service is responding
+      ignore_errors: true
+      uri:
+        url: "http://localhost:{{nginx_http_port}}"
+        return_content: yes
+        status_code: 200,404,403
